@@ -37,7 +37,7 @@ def _set_refresh_cookie(response, refresh_token_str):
         max_age=REFRESH_COOKIE_MAX_AGE,
         httponly=True,
         secure=not settings.DEBUG,
-        samesite='Lax',
+        samesite='None' if not settings.DEBUG else 'Lax',
         path='/',
     )
 
