@@ -1,0 +1,12 @@
+google-genai>=1.0,<2.0
+Django>=5.0,<6.0
+djangorestframework>=3.15,<4.0
+djangorestframework-simplejwt>=5.3,<6.0
+django-cors-headers>=4.3,<5.0
+bleach>=6.1,<7.0
+argon2-cffi>=23.1,<24.0
+python-decouple>=3.8,<4.0
+psycopg2-binary>=2.9,<3.0
+PyJWT>=2.8,<3.0
+cryptography>=42.0,<44.0
+requests>=2.31,<3.0
