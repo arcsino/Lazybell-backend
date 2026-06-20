@@ -1,6 +1,5 @@
 import re
 
-from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
 from common.sanitizers import sanitize_text
@@ -25,19 +24,13 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'nickname', 'biography']
+        fields = ['username', 'password', 'nickname', 'biography']
         extra_kwargs = {
             'biography': {'required': False, 'allow_null': True},
         }
 
     def validate_password(self, value):
         return validate_password_strength(value)
-
-    def validate_email(self, value):
-        value = value.lower()
-        if User.objects.filter(email=value).exists():
-            raise serializers.ValidationError('This email is already in use.')
-        return value
 
     def validate_nickname(self, value):
         return sanitize_text(value)
@@ -48,7 +41,6 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return User.objects.create_user(
             username=validated_data['username'],
-            email=validated_data['email'],
             password=validated_data['password'],
             nickname=validated_data['nickname'],
             biography=validated_data.get('biography'),
@@ -99,13 +91,3 @@ class ChangePasswordSerializer(serializers.Serializer):
         return attrs
 
 
-class PasswordResetRequestSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-
-
-class PasswordResetConfirmSerializer(serializers.Serializer):
-    token = serializers.CharField()
-    new_password = serializers.CharField(min_length=8)
-
-    def validate_new_password(self, value):
-        return validate_password_strength(value)

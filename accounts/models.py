@@ -1,6 +1,4 @@
-import secrets
 import uuid
-from datetime import timedelta
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
@@ -55,23 +53,3 @@ class User(AbstractBaseUser):
         return self.is_admin
 
 
-class PasswordResetToken(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reset_tokens')
-    token = models.CharField(max_length=128, unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField()
-    is_used = models.BooleanField(default=False)
-
-    class Meta:
-        db_table = 'password_reset_tokens'
-
-    @classmethod
-    def create_for_user(cls, user):
-        cls.objects.filter(user=user, is_used=False).delete()
-        token = secrets.token_urlsafe(48)
-        expires_at = timezone.now() + timedelta(minutes=30)
-        return cls.objects.create(user=user, token=token, expires_at=expires_at)
-
-    def is_valid(self):
-        return not self.is_used and self.expires_at > timezone.now()
