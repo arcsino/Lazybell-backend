@@ -6,6 +6,7 @@ from .views import (
     GroupApproveView,
     GroupBanView,
     GroupDetailView,
+    GroupInviteCancelView,
     GroupInviteView,
     GroupJoinView,
     GroupLeaveView,
@@ -46,6 +47,7 @@ urlpatterns = [
 
     # Invitations
     path('groups/<uuid:group_id>/invite/', GroupInviteView.as_view(), name='group-invite'),
+    path('groups/<uuid:group_id>/invites/<uuid:invite_id>/', GroupInviteCancelView.as_view(), name='group-invite-cancel'),
     path('invites/', InviteListView.as_view(), name='invite-list'),
     path('invites/<uuid:invite_id>/accept/', InviteAcceptView.as_view(), name='invite-accept'),
     path('invites/<uuid:invite_id>/', InviteDeleteView.as_view(), name='invite-delete'),

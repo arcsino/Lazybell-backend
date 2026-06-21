@@ -144,6 +144,16 @@ class InviteSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class GroupPendingInviteSerializer(serializers.ModelSerializer):
+    user = PublicUserSerializer(read_only=True)
+    invited_by = PublicUserSerializer(read_only=True)
+
+    class Meta:
+        model = InvitedGroupRelation
+        fields = ['id', 'user', 'invited_by', 'created_at']
+        read_only_fields = fields
+
+
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject

@@ -26,6 +26,7 @@ from .permissions import has_permission, is_group_member
 from .serializers import (
     AssignRoleSerializer,
     GroupCreateSerializer,
+    GroupPendingInviteSerializer,
     GroupRoleCreateSerializer,
     GroupRoleSerializer,
     GroupRoleUpdateSerializer,
@@ -357,6 +358,16 @@ class GroupInviteView(APIView):
     permission_classes = [IsAuthenticated]
     throttle_classes = [InviteRateThrottle]
 
+    def get(self, request, group_id):
+        group = _get_active_group(group_id)
+        err = _require_permission(request.user, group, 'can_invite_user')
+        if err:
+            return err
+        invites = InvitedGroupRelation.objects.filter(
+            group=group
+        ).select_related('user', 'invited_by').order_by('-created_at')
+        return Response(GroupPendingInviteSerializer(invites, many=True).data)
+
     def post(self, request, group_id):
         group = _get_active_group(group_id)
         err = _require_permission(request.user, group, 'can_invite_user')
@@ -399,6 +410,19 @@ class GroupInviteView(APIView):
             invited_by=request.user,
         )
         return Response(InviteSerializer(invite).data, status=status.HTTP_201_CREATED)
+
+
+class GroupInviteCancelView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, group_id, invite_id):
+        group = _get_active_group(group_id)
+        err = _require_permission(request.user, group, 'can_invite_user')
+        if err:
+            return err
+        invite = get_object_or_404(InvitedGroupRelation, id=invite_id, group=group)
+        invite.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class InviteListView(APIView):
